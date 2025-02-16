@@ -1,5 +1,6 @@
 module "shipping" {
-  source = "../../terraform-roboshop-app"
+ #source = "../../terraform-roboshop-app"
+  source = "git::https://github.com/Lingaiahthammisetti/14.14.terraform-roboshop-app.git"
   project_name = var.project_name
   env = var.env
   common_tags = var.common_tags
