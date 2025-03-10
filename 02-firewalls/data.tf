@@ -7,5 +7,5 @@ data "http" "myip" {
 }
 
 data "aws_ssm_parameter" "vpc_id" {
-  name = "/${var.project_name}/${var.env}/vpc_id"
+  name = "/${var.project_name}/${var.environment}/vpc_id"
 }

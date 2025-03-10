@@ -2,8 +2,12 @@ variable "project_name" {
   default = "roboshop"
 }
 
-variable "env" {
+variable "environment" {
   default = "dev"
+}
+
+variable "app_version" {
+  default = "1.0"
 }
 
 variable "common_tags" {

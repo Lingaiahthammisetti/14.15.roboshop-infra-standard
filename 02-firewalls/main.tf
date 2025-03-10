@@ -5,6 +5,7 @@ module "vpn_sg" {
   #source = "../../14.13.terraform-aws-security-group"
   project_name = var.project_name
   sg_name = "roboshop-vpn"
+  environment = var.environment
   sg_description = "Allowing all ports from my home IP"
   #sg_ingress_rules = var.sg_ingress_rules
   vpc_id = data.aws_vpc.default.id
@@ -21,6 +22,7 @@ module "mongodb_sg" {
   source = "git::https://github.com/Lingaiahthammisetti/14.13.terraform-aws-security-group.git"
   #source = "../../14.13.terraform-aws-security-group"
   project_name = var.project_name
+  environment = var.environment
   sg_name = "mongodb"
   sg_description = "Allowing traffic"
   #sg_ingress_rules = var.sg_ingress_rules
@@ -38,6 +40,7 @@ module "redis_sg" {
   source = "git::https://github.com/Lingaiahthammisetti/14.13.terraform-aws-security-group.git"
   #source = "../../14.13.terraform-aws-security-group"
   project_name = var.project_name
+  environment = var.environment
   sg_name = "redis"
   sg_description = "Allowing traffic"
   #sg_ingress_rules = var.sg_ingress_rules
@@ -55,6 +58,7 @@ module "mysql_sg" {
   source = "git::https://github.com/Lingaiahthammisetti/14.13.terraform-aws-security-group.git"
   #source = "../../14.13.terraform-aws-security-group"
   project_name = var.project_name
+  environment = var.environment
   sg_name = "mysql"
   sg_description = "Allowing traffic"
   #sg_ingress_rules = var.sg_ingress_rules
@@ -72,6 +76,7 @@ module "rabbitmq_sg" {
   source = "git::https://github.com/Lingaiahthammisetti/14.13.terraform-aws-security-group.git"
   #source = "../../14.13.terraform-aws-security-group"
   project_name = var.project_name
+  environment = var.environment
   sg_name = "rabbitmq"
   sg_description = "Allowing traffic"
   #sg_ingress_rules = var.sg_ingress_rules
@@ -89,6 +94,7 @@ module "catalogue_sg" {
   source = "git::https://github.com/Lingaiahthammisetti/14.13.terraform-aws-security-group.git"
   #source = "../../14.13.terraform-aws-security-group"
   project_name = var.project_name
+  environment = var.environment
   sg_name = "catalogue"
   sg_description = "Allowing traffic"
   #sg_ingress_rules = var.sg_ingress_rules
@@ -106,6 +112,7 @@ module "user_sg" {
   source = "git::https://github.com/Lingaiahthammisetti/14.13.terraform-aws-security-group.git"
   #source = "../../14.13.terraform-aws-security-group"
   project_name = var.project_name
+  environment = var.environment
   sg_name = "user"
   sg_description = "Allowing traffic"
   #sg_ingress_rules = var.sg_ingress_rules
@@ -123,6 +130,7 @@ module "cart_sg" {
   source = "git::https://github.com/Lingaiahthammisetti/14.13.terraform-aws-security-group.git"
   #source = "../../14.13.terraform-aws-security-group"
   project_name = var.project_name
+  environment = var.environment
   sg_name = "cart"
   sg_description = "Allowing traffic"
   #sg_ingress_rules = var.sg_ingress_rules
@@ -140,6 +148,7 @@ module "shipping_sg" {
   source = "git::https://github.com/Lingaiahthammisetti/14.13.terraform-aws-security-group.git"
   #source = "../../14.13.terraform-aws-security-group"
   project_name = var.project_name
+  environment = var.environment
   sg_name = "shipping"
   sg_description = "Allowing traffic"
   #sg_ingress_rules = var.sg_ingress_rules
@@ -157,6 +166,7 @@ module "payment_sg" {
   source = "git::https://github.com/Lingaiahthammisetti/14.13.terraform-aws-security-group.git"
   #source = "../../14.13.terraform-aws-security-group"
   project_name = var.project_name
+  environment = var.environment
   sg_name = "payment"
   sg_description = "Allowing traffic"
   #sg_ingress_rules = var.sg_ingress_rules
@@ -174,6 +184,7 @@ module "app_alb_sg" {
   source = "git::https://github.com/Lingaiahthammisetti/14.13.terraform-aws-security-group.git"
   #source = "../../14.13.terraform-aws-security-group"
   project_name = var.project_name
+  environment = var.environment
   sg_name = "App-ALB"
   sg_description = "Allowing traffic"
   #sg_ingress_rules = var.sg_ingress_rules
@@ -191,6 +202,7 @@ module "web_sg" {
   source = "git::https://github.com/Lingaiahthammisetti/14.13.terraform-aws-security-group.git"
   #source = "../../14.13.terraform-aws-security-group"
   project_name = var.project_name
+  environment = var.environment
   sg_name = "web"
   sg_description = "Allowing traffic"
   #sg_ingress_rules = var.sg_ingress_rules
@@ -207,6 +219,7 @@ module "web_alb_sg" {
   source = "git::https://github.com/Lingaiahthammisetti/14.13.terraform-aws-security-group.git"
   #source = "../../14.13.terraform-aws-security-group"
   project_name = var.project_name
+  environment = var.environment
   sg_name = "Web-ALB"
   sg_description = "Allowing traffic"
   #sg_ingress_rules = var.sg_ingress_rules
@@ -221,15 +234,15 @@ module "web_alb_sg" {
 }
 
 
-#
 resource "aws_security_group_rule" "vpn" {
   type              = "ingress"
   from_port         = 0
   to_port           = 65535
   protocol          = "tcp"
-  cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
+  cidr_blocks       = ["${chomp(data.http.myip.response_body)}/32"]
+  #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.vpn_sg.security_group_id
+  security_group_id = module.vpn_sg.sg_id
 }
 
 # This is allowing connections from all catalogue instances to MongoDB
@@ -239,10 +252,10 @@ resource "aws_security_group_rule" "mongodb_catalogue" {
   from_port         = 27017
   to_port           = 27017
   protocol          = "tcp"
-  source_security_group_id = module.catalogue_sg.security_group_id
+  source_security_group_id = module.catalogue_sg.sg_id
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.mongodb_sg.security_group_id
+  security_group_id = module.mongodb_sg.sg_id
 }
 
 # this is allowing traffic from VPN on port no 22 for trouble shooting
@@ -252,10 +265,10 @@ resource "aws_security_group_rule" "mongodb_vpn" {
   from_port         = 22
   to_port           = 22
   protocol          = "tcp"
-  source_security_group_id = module.vpn_sg.security_group_id
+  source_security_group_id = module.vpn_sg.sg_id
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.mongodb_sg.security_group_id
+  security_group_id = module.mongodb_sg.sg_id
 }
 
 resource "aws_security_group_rule" "mongodb_user" {
@@ -264,10 +277,10 @@ resource "aws_security_group_rule" "mongodb_user" {
   from_port         = 27017
   to_port           = 27017
   protocol          = "tcp"
-  source_security_group_id = module.user_sg.security_group_id
+  source_security_group_id = module.user_sg.sg_id
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.mongodb_sg.security_group_id
+  security_group_id = module.mongodb_sg.sg_id
 }
 
 resource "aws_security_group_rule" "redis_vpn" {
@@ -276,10 +289,10 @@ resource "aws_security_group_rule" "redis_vpn" {
   from_port         = 22
   to_port           = 22
   protocol          = "tcp"
-  source_security_group_id = module.vpn_sg.security_group_id
+  source_security_group_id = module.vpn_sg.sg_id
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.redis_sg.security_group_id
+  security_group_id = module.redis_sg.sg_id
 }
 
 resource "aws_security_group_rule" "redis_user" {
@@ -288,10 +301,10 @@ resource "aws_security_group_rule" "redis_user" {
   from_port         = 6379
   to_port           = 6379
   protocol          = "tcp"
-  source_security_group_id = module.user_sg.security_group_id
+  source_security_group_id = module.user_sg.sg_id
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.redis_sg.security_group_id
+  security_group_id = module.redis_sg.sg_id
 }
 
 resource "aws_security_group_rule" "redis_cart" {
@@ -300,10 +313,10 @@ resource "aws_security_group_rule" "redis_cart" {
   from_port         = 6379
   to_port           = 6379
   protocol          = "tcp"
-  source_security_group_id = module.cart_sg.security_group_id
+  source_security_group_id = module.cart_sg.sg_id
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.redis_sg.security_group_id
+  security_group_id = module.redis_sg.sg_id
 }
 
 resource "aws_security_group_rule" "mysql_vpn" {
@@ -312,10 +325,10 @@ resource "aws_security_group_rule" "mysql_vpn" {
   from_port         = 22
   to_port           = 22
   protocol          = "tcp"
-  source_security_group_id = module.vpn_sg.security_group_id
+  source_security_group_id = module.vpn_sg.sg_id
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.mysql_sg.security_group_id
+  security_group_id = module.mysql_sg.sg_id
 }
 
 resource "aws_security_group_rule" "mysql_shipping" {
@@ -324,10 +337,10 @@ resource "aws_security_group_rule" "mysql_shipping" {
   from_port         = 3306
   to_port           = 3306
   protocol          = "tcp"
-  source_security_group_id = module.shipping_sg.security_group_id
+  source_security_group_id = module.shipping_sg.sg_id
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.mysql_sg.security_group_id
+  security_group_id = module.mysql_sg.sg_id
 }
 
 resource "aws_security_group_rule" "rabbitmq_payment" {
@@ -336,10 +349,10 @@ resource "aws_security_group_rule" "rabbitmq_payment" {
   from_port         = 5672
   to_port           = 5672
   protocol          = "tcp"
-  source_security_group_id = module.payment_sg.security_group_id
+  source_security_group_id = module.payment_sg.sg_id
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.rabbitmq_sg.security_group_id
+  security_group_id = module.rabbitmq_sg.sg_id
 }
 
 resource "aws_security_group_rule" "rabbitmq_vpn" {
@@ -348,10 +361,10 @@ resource "aws_security_group_rule" "rabbitmq_vpn" {
   from_port         = 22
   to_port           = 22
   protocol          = "tcp"
-  source_security_group_id = module.vpn_sg.security_group_id
+  source_security_group_id = module.vpn_sg.sg_id
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.rabbitmq_sg.security_group_id
+  security_group_id = module.rabbitmq_sg.sg_id
 }
 
 
@@ -361,10 +374,10 @@ resource "aws_security_group_rule" "catalogue_vpn" {
   from_port         = 22
   to_port           = 22
   protocol          = "tcp"
-  source_security_group_id = module.vpn_sg.security_group_id
+  source_security_group_id = module.vpn_sg.sg_id
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.catalogue_sg.security_group_id
+  security_group_id = module.catalogue_sg.sg_id
 }
 
 resource "aws_security_group_rule" "catalogue_app_alb" {
@@ -373,10 +386,10 @@ resource "aws_security_group_rule" "catalogue_app_alb" {
   from_port         = 8080
   to_port           = 8080
   protocol          = "tcp"
-  source_security_group_id = module.app_alb_sg.security_group_id
+  source_security_group_id = module.app_alb_sg.sg_id
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.catalogue_sg.security_group_id
+  security_group_id = module.catalogue_sg.sg_id
 }
 
 resource "aws_security_group_rule" "user_app_alb" {
@@ -385,10 +398,10 @@ resource "aws_security_group_rule" "user_app_alb" {
   from_port         = 8080
   to_port           = 8080
   protocol          = "tcp"
-  source_security_group_id = module.app_alb_sg.security_group_id
+  source_security_group_id = module.app_alb_sg.sg_id
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.user_sg.security_group_id
+  security_group_id = module.user_sg.sg_id
 }
 
 resource "aws_security_group_rule" "user_vpn" {
@@ -397,10 +410,10 @@ resource "aws_security_group_rule" "user_vpn" {
   from_port         = 22
   to_port           = 22
   protocol          = "tcp"
-  source_security_group_id = module.vpn_sg.security_group_id
+  source_security_group_id = module.vpn_sg.sg_id
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.user_sg.security_group_id
+  security_group_id = module.user_sg.sg_id
 }
 
 resource "aws_security_group_rule" "cart_vpn" {
@@ -409,10 +422,10 @@ resource "aws_security_group_rule" "cart_vpn" {
   from_port         = 22
   to_port           = 22
   protocol          = "tcp"
-  source_security_group_id = module.vpn_sg.security_group_id
+  source_security_group_id = module.vpn_sg.sg_id
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.cart_sg.security_group_id
+  security_group_id = module.cart_sg.sg_id
 }
 
 resource "aws_security_group_rule" "cart_app_alb" {
@@ -421,10 +434,10 @@ resource "aws_security_group_rule" "cart_app_alb" {
   from_port         = 8080
   to_port           = 8080
   protocol          = "tcp"
-  source_security_group_id = module.app_alb_sg.security_group_id
+  source_security_group_id = module.app_alb_sg.sg_id
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.cart_sg.security_group_id
+  security_group_id = module.cart_sg.sg_id
 }
 
 resource "aws_security_group_rule" "shipping_vpn" {
@@ -433,10 +446,10 @@ resource "aws_security_group_rule" "shipping_vpn" {
   from_port         = 22
   to_port           = 22
   protocol          = "tcp"
-  source_security_group_id = module.vpn_sg.security_group_id
+  source_security_group_id = module.vpn_sg.sg_id
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.shipping_sg.security_group_id
+  security_group_id = module.shipping_sg.sg_id
 }
 
 resource "aws_security_group_rule" "shipping_app_alb" {
@@ -445,10 +458,10 @@ resource "aws_security_group_rule" "shipping_app_alb" {
   from_port         = 8080
   to_port           = 8080
   protocol          = "tcp"
-  source_security_group_id = module.app_alb_sg.security_group_id
+  source_security_group_id = module.app_alb_sg.sg_id
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.shipping_sg.security_group_id
+  security_group_id = module.shipping_sg.sg_id
 }
 
 resource "aws_security_group_rule" "payment_vpn" {
@@ -457,10 +470,10 @@ resource "aws_security_group_rule" "payment_vpn" {
   from_port         = 22
   to_port           = 22
   protocol          = "tcp"
-  source_security_group_id = module.vpn_sg.security_group_id
+  source_security_group_id = module.vpn_sg.sg_id
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.payment_sg.security_group_id
+  security_group_id = module.payment_sg.sg_id
 }
 
 resource "aws_security_group_rule" "payment_app_alb" {
@@ -469,10 +482,10 @@ resource "aws_security_group_rule" "payment_app_alb" {
   from_port         = 8080
   to_port           = 8080
   protocol          = "tcp"
-  source_security_group_id = module.app_alb_sg.security_group_id
+  source_security_group_id = module.app_alb_sg.sg_id
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.payment_sg.security_group_id
+  security_group_id = module.payment_sg.sg_id
 }
 
 
@@ -482,10 +495,10 @@ resource "aws_security_group_rule" "app_alb_vpn" {
   from_port         = 80
   to_port           = 80
   protocol          = "tcp"
-  source_security_group_id = module.vpn_sg.security_group_id
+  source_security_group_id = module.vpn_sg.sg_id
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.app_alb_sg.security_group_id
+  security_group_id = module.app_alb_sg.sg_id
 }
 
 resource "aws_security_group_rule" "app_alb_web" {
@@ -494,10 +507,10 @@ resource "aws_security_group_rule" "app_alb_web" {
   from_port         = 80
   to_port           = 80
   protocol          = "tcp"
-  source_security_group_id = module.web_sg.security_group_id
+  source_security_group_id = module.web_sg.sg_id
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.app_alb_sg.security_group_id
+  security_group_id = module.app_alb_sg.sg_id
 }
 
 resource "aws_security_group_rule" "app_alb_catalogue" {
@@ -506,10 +519,10 @@ resource "aws_security_group_rule" "app_alb_catalogue" {
   from_port         = 80
   to_port           = 80
   protocol          = "tcp"
-  source_security_group_id = module.catalogue_sg.security_group_id
+  source_security_group_id = module.catalogue_sg.sg_id
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.app_alb_sg.security_group_id
+  security_group_id = module.app_alb_sg.sg_id
 }
 
 resource "aws_security_group_rule" "app_alb_user" {
@@ -518,10 +531,10 @@ resource "aws_security_group_rule" "app_alb_user" {
   from_port         = 80
   to_port           = 80
   protocol          = "tcp"
-  source_security_group_id = module.user_sg.security_group_id
+  source_security_group_id = module.user_sg.sg_id
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.app_alb_sg.security_group_id
+  security_group_id = module.app_alb_sg.sg_id
 }
 
 resource "aws_security_group_rule" "app_alb_cart" {
@@ -530,10 +543,10 @@ resource "aws_security_group_rule" "app_alb_cart" {
   from_port         = 80
   to_port           = 80
   protocol          = "tcp"
-  source_security_group_id = module.cart_sg.security_group_id
+  source_security_group_id = module.cart_sg.sg_id
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.app_alb_sg.security_group_id
+  security_group_id = module.app_alb_sg.sg_id
 }
 
 resource "aws_security_group_rule" "app_alb_shipping" {
@@ -542,10 +555,10 @@ resource "aws_security_group_rule" "app_alb_shipping" {
   from_port         = 80
   to_port           = 80
   protocol          = "tcp"
-  source_security_group_id = module.shipping_sg.security_group_id
+  source_security_group_id = module.shipping_sg.sg_id
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.app_alb_sg.security_group_id
+  security_group_id = module.app_alb_sg.sg_id
 }
 
 resource "aws_security_group_rule" "app_alb_payment" {
@@ -554,10 +567,10 @@ resource "aws_security_group_rule" "app_alb_payment" {
   from_port         = 80
   to_port           = 80
   protocol          = "tcp"
-  source_security_group_id = module.payment_sg.security_group_id
+  source_security_group_id = module.payment_sg.sg_id
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.app_alb_sg.security_group_id
+  security_group_id = module.app_alb_sg.sg_id
 }
 
 resource "aws_security_group_rule" "web_vpn" {
@@ -566,10 +579,10 @@ resource "aws_security_group_rule" "web_vpn" {
   from_port         = 80
   to_port           = 80
   protocol          = "tcp"
-  source_security_group_id = module.vpn_sg.security_group_id
+  source_security_group_id = module.vpn_sg.sg_id
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.web_sg.security_group_id
+  security_group_id = module.web_sg.sg_id
 }
 
 resource "aws_security_group_rule" "web_vpn_ssh" {
@@ -578,10 +591,10 @@ resource "aws_security_group_rule" "web_vpn_ssh" {
   from_port         = 22
   to_port           = 22
   protocol          = "tcp"
-  source_security_group_id = module.vpn_sg.security_group_id
+  source_security_group_id = module.vpn_sg.sg_id
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.web_sg.security_group_id
+  security_group_id = module.web_sg.sg_id
 }
 
 resource "aws_security_group_rule" "web_web_alb" {
@@ -590,10 +603,10 @@ resource "aws_security_group_rule" "web_web_alb" {
   from_port         = 80
   to_port           = 80
   protocol          = "tcp"
-  source_security_group_id = module.web_alb_sg.security_group_id
+  source_security_group_id = module.web_alb_sg.sg_id
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.web_sg.security_group_id
+  security_group_id = module.web_sg.sg_id
 }
 
 resource "aws_security_group_rule" "web_alb_internet" {
@@ -605,7 +618,7 @@ resource "aws_security_group_rule" "web_alb_internet" {
   cidr_blocks = ["0.0.0.0/0"]
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.web_alb_sg.security_group_id
+  security_group_id = module.web_alb_sg.sg_id
 }
 
 resource "aws_security_group_rule" "web_alb_internet_https" {
@@ -617,5 +630,5 @@ resource "aws_security_group_rule" "web_alb_internet_https" {
   cidr_blocks = ["0.0.0.0/0"]
   #cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
   #ipv6_cidr_blocks  = [aws_vpc.example.ipv6_cidr_block]
-  security_group_id = module.web_alb_sg.security_group_id
+  security_group_id = module.web_alb_sg.sg_id
 }
